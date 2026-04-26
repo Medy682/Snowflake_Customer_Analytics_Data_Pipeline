@@ -34,15 +34,15 @@ jobs:
       - name: Execute Setup Scripts
         run: |
          snow sql \
-            --account $SNOWFLAKE_ACCOUNT \
-            --user $SNOWFLAKE_USER \
-            --password $SNOWFLAKE_PASSWORD \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
             -q "USE WAREHOUSE $SNOWFLAKE_WAREHOUSE; USE DATABASE $SNOWFLAKE_DATABASE; USE SCHEMA $SNOWFLAKE_SCHEMA;"
 
          snow sql \
-           --account $SNOWFLAKE_ACCOUNT \
-           --user $SNOWFLAKE_USER \
-           --password $SNOWFLAKE_PASSWORD \
+           --account "$SNOWFLAKE_ACCOUNT" \
+           --user "$SNOWFLAKE_USER" \
+           --password "$SNOWFLAKE_PASSWORD" \
            -f sql/01_setup/setup.sql
 
       # ✅ Raw Layer
@@ -50,15 +50,15 @@ jobs:
       - name: Load Raw Tables
         run: |
          snow sql \
-            --account $SNOWFLAKE_ACCOUNT \
-            --user $SNOWFLAKE_USER \
-            --password $SNOWFLAKE_PASSWORD \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
             -q "USE WAREHOUSE $SNOWFLAKE_WAREHOUSE; USE DATABASE $SNOWFLAKE_DATABASE; USE SCHEMA $SNOWFLAKE_SCHEMA;"
 
          snow sql \
-           --account $SNOWFLAKE_ACCOUNT \
-           --user $SNOWFLAKE_USER \
-           --password $SNOWFLAKE_PASSWORD \
+           --account "$SNOWFLAKE_ACCOUNT" \
+           --user "$SNOWFLAKE_USER" \
+           --password "$SNOWFLAKE_PASSWORD" \
            -f sql/02_raw/create_raw_tables.sql
           
       # ✅ Staging Layer
@@ -66,15 +66,15 @@ jobs:
       - name: run stage layer
         run: |
          snow sql \
-            --account $SNOWFLAKE_ACCOUNT \
-            --user $SNOWFLAKE_USER \
-            --password $SNOWFLAKE_PASSWORD \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
             -q "USE WAREHOUSE $SNOWFLAKE_WAREHOUSE; USE DATABASE $SNOWFLAKE_DATABASE; USE SCHEMA $SNOWFLAKE_SCHEMA;"
 
          snow sql \
-           --account $SNOWFLAKE_ACCOUNT \
-           --user $SNOWFLAKE_USER \
-           --password $SNOWFLAKE_PASSWORD \
+           --account "$SNOWFLAKE_ACCOUNT" \
+           --user "$SNOWFLAKE_USER" \
+           --password "$SNOWFLAKE_PASSWORD" \
            -f sql/03_staging/staging_transformations.sql
 
       # ✅ Data Quality
@@ -82,29 +82,30 @@ jobs:
       - name: run data quality checks
         run: |
          snow sql \
-            --account $SNOWFLAKE_ACCOUNT \
-            --user $SNOWFLAKE_USER \
-            --password $SNOWFLAKE_PASWORD \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASWORD" \
             -q "USE WAREHOUSE $SNOWFLAKE_WAREHOUSE; USE DATABASE $SNOWFLAKE_DATABASE; USE SCHEMA $SNOWFLAKE_SCHEMA;"
 
          snow sql \
-           --account $SNOWFLAKE_ACCOUNT \
-           --user $SNOWFLAKE_USER \
-           --password $SNOWFLAKE_PASSWORD \
+           --account "$SNOWFLAKE_ACCOUNT" \
+           --user "$SNOWFLAKE_USER" \
+           --password "$SNOWFLAKE_PASSWORD" \
            -f sql/04_data_quality/data_quality_checks.sql
 
       # ✅ Analytics Layer
 
       - name: build analytics layer
         run: |
-         snow sql \
-            --account $SNOWFLAKE_ACCOUNT \
-            --user $SNOWFLAKE_USER \
-            --password $SNOWFLAKE_PASSWORD \
-            -q "USE WAREHOUSE $SNOWFLAKE_WAREHOUSE; USE DATABASE $SNOWFLAKE_DATABASE; USE SCHEMA $SNOWFLAKE_SCHEMA;"
 
-         snow sql \
-           --account $SNOWFLAKE_ACCOUNT \
-           --user $SNOWFLAKE_USER \
-           --password $SNOWFLAKE_PASSWORD \
-           -f sql/05_analytics/business_insights.sql
+         snowsql \
+             --account "$snowflake_account" \
+             --user "$snowflake_user" \
+             --password "$snowflake_password" \
+              -q "USE WAREHOUSE $snowflake_warehouse; USE DATABASE $snowflake_database; USE SCHEMA $snowflake_schema;"
+
+         snowsql \
+          --account "$snowflake_account" \
+          --user "$snowflake_user" \
+          --password "$snowflake_password" \
+          -f sql/05_analytics/business_insights.sql
