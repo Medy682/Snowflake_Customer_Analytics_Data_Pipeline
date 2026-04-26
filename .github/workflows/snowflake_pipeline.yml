@@ -21,23 +21,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # ✅ Stable SnowSQL installation
-      - name: Install SnowSQL
+      # ✅ Stable Snow SQL pip installation
+      - name: Install Snowflake CLI (Python)
         run: |
-          set -e
-          curl -L -o snowsql.bash https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.28-linux_x86_64.bash
-          chmod +x snowsql.bash
-          ./snowsql.bash -y
-          echo "$HOME/.snowsql/bin" >> $GITHUB_PATH
-
-      # ✅ Verify installation (important debugging step)
-      - name: Verify SnowSQL Installation
-        run: snowsql --version
+             python -m pip install --upgrade pip
+             pip install snowflake-cli-labs
 
       # ✅ Setup Layer
       - name: Execute Setup Scripts
         run: |
-          snowsql -a $SNOWFLAKE_ACCOUNT \
+          snow sql -a $SNOWFLAKE_ACCOUNT \
                    -u $SNOWFLAKE_USER \
                    -p $SNOWFLAKE_PASSWORD \
                    -w $SNOWFLAKE_WAREHOUSE \
@@ -48,7 +41,7 @@ jobs:
       # ✅ Raw Layer
       - name: Load Raw Tables
         run: |
-          snowsql -a $SNOWFLAKE_ACCOUNT \
+          snow sql -a $SNOWFLAKE_ACCOUNT \
                    -u $SNOWFLAKE_USER \
                    -p $SNOWFLAKE_PASSWORD \
                    -w $SNOWFLAKE_WAREHOUSE \
@@ -59,7 +52,7 @@ jobs:
       # ✅ Staging Layer
       - name: Run Staging Layer
         run: |
-          snowsql -a $SNOWFLAKE_ACCOUNT \
+          snow sql -a $SNOWFLAKE_ACCOUNT \
                    -u $SNOWFLAKE_USER \
                    -p $SNOWFLAKE_PASSWORD \
                    -w $SNOWFLAKE_WAREHOUSE \
@@ -70,7 +63,7 @@ jobs:
       # ✅ Data Quality
       - name: Run Data Quality Checks
         run: |
-          snowsql -a $SNOWFLAKE_ACCOUNT \
+          snow sql -a $SNOWFLAKE_ACCOUNT \
                    -u $SNOWFLAKE_USER \
                    -p $SNOWFLAKE_PASSWORD \
                    -w $SNOWFLAKE_WAREHOUSE \
@@ -81,7 +74,7 @@ jobs:
       # ✅ Analytics Layer
       - name: Build Analytics Layer
         run: |
-          snowsql -a $SNOWFLAKE_ACCOUNT \
+          snow sql -a $SNOWFLAKE_ACCOUNT \
                    -u $SNOWFLAKE_USER \
                    -p $SNOWFLAKE_PASSWORD \
                    -w $SNOWFLAKE_WAREHOUSE \
