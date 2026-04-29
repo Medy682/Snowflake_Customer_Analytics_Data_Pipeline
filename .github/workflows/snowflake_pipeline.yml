@@ -12,11 +12,11 @@ jobs:
     env:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
       SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
       SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+      # We use the secret directly in the shell script below
 
     steps:
       - name: Checkout Repository
@@ -28,37 +28,43 @@ jobs:
           pip install snowflake-cli
 
       - name: Run Snowflake Commands
+        env:
+          PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
         run: |
-          # Test connection (good practice)
+          # 1. Save the Private Key to a file
+          echo "$PRIVATE_KEY" > rsa_key.p8
+          chmod 600 rsa_key.p8
+
+          # 2. Test connection (Using Private Key)
           snow sql \
             --temporary-connection \
             --account "$SNOWFLAKE_ACCOUNT" \
             --user "$SNOWFLAKE_USER" \
-            --password "$SNOWFLAKE_PASSWORD" \
+            --private-key-path rsa_key.p8 \
             --role "$SNOWFLAKE_ROLE" \
             --warehouse "$SNOWFLAKE_WAREHOUSE" \
             --database "$SNOWFLAKE_DATABASE" \
             --schema "$SNOWFLAKE_SCHEMA" \
             -q "SELECT CURRENT_VERSION();"
 
-          # Set context explicitly
+          # 3. Set context explicitly
           snow sql \
             --temporary-connection \
             --account "$SNOWFLAKE_ACCOUNT" \
             --user "$SNOWFLAKE_USER" \
-            --password "$SNOWFLAKE_PASSWORD" \
+            --private-key-path rsa_key.p8 \
             --role "$SNOWFLAKE_ROLE" \
             --warehouse "$SNOWFLAKE_WAREHOUSE" \
             --database "$SNOWFLAKE_DATABASE" \
             --schema "$SNOWFLAKE_SCHEMA" \
             -q "USE WAREHOUSE $SNOWFLAKE_WAREHOUSE; USE DATABASE $SNOWFLAKE_DATABASE; USE SCHEMA $SNOWFLAKE_SCHEMA;"
 
-          # Run SQL scripts
+          # 4. Run SQL scripts
           snow sql \
             --temporary-connection \
             --account "$SNOWFLAKE_ACCOUNT" \
             --user "$SNOWFLAKE_USER" \
-            --password "$SNOWFLAKE_PASSWORD" \
+            --private-key-path rsa_key.p8 \
             --role "$SNOWFLAKE_ROLE" \
             --warehouse "$SNOWFLAKE_WAREHOUSE" \
             --database "$SNOWFLAKE_DATABASE" \
@@ -69,7 +75,7 @@ jobs:
             --temporary-connection \
             --account "$SNOWFLAKE_ACCOUNT" \
             --user "$SNOWFLAKE_USER" \
-            --password "$SNOWFLAKE_PASSWORD" \
+            --private-key-path rsa_key.p8 \
             --role "$SNOWFLAKE_ROLE" \
             --warehouse "$SNOWFLAKE_WAREHOUSE" \
             --database "$SNOWFLAKE_DATABASE" \
@@ -80,7 +86,7 @@ jobs:
             --temporary-connection \
             --account "$SNOWFLAKE_ACCOUNT" \
             --user "$SNOWFLAKE_USER" \
-            --password "$SNOWFLAKE_PASSWORD" \
+            --private-key-path rsa_key.p8 \
             --role "$SNOWFLAKE_ROLE" \
             --warehouse "$SNOWFLAKE_WAREHOUSE" \
             --database "$SNOWFLAKE_DATABASE" \
@@ -91,7 +97,7 @@ jobs:
             --temporary-connection \
             --account "$SNOWFLAKE_ACCOUNT" \
             --user "$SNOWFLAKE_USER" \
-            --password "$SNOWFLAKE_PASSWORD" \
+            --private-key-path rsa_key.p8 \
             --role "$SNOWFLAKE_ROLE" \
             --warehouse "$SNOWFLAKE_WAREHOUSE" \
             --database "$SNOWFLAKE_DATABASE" \
@@ -102,9 +108,12 @@ jobs:
             --temporary-connection \
             --account "$SNOWFLAKE_ACCOUNT" \
             --user "$SNOWFLAKE_USER" \
-            --password "$SNOWFLAKE_PASSWORD" \
+            --private-key-path rsa_key.p8 \
             --role "$SNOWFLAKE_ROLE" \
             --warehouse "$SNOWFLAKE_WAREHOUSE" \
             --database "$SNOWFLAKE_DATABASE" \
             --schema "$SNOWFLAKE_SCHEMA" \
             -f snowflake/8_analytics/12_analytics.sql
+
+          # 5. Cleanup key for security
+          rm rsa_key.p8
