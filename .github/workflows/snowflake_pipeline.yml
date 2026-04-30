@@ -35,7 +35,10 @@ jobs:
           echo "$PRIVATE_KEY" > rsa_key.p8
           chmod 600 rsa_key.p8
 
-          # 2. Test connection (Using Private Key)
+          # 2. Run commands using JWT (Bypasses MFA)
+          # Note: We REMOVED --password and ADDED --authenticator and --private-key-path
+
+          # 3. Test connection (Using Private Key)
           snow sql \
             --temporary-connection \
             --authenticator SNOWFLAKE_JWT \
@@ -48,7 +51,7 @@ jobs:
             --schema "$SNOWFLAKE_SCHEMA" \
             -q "SELECT CURRENT_VERSION();"
 
-          # 3. Set context explicitly
+          # 4. Set context explicitly
           snow sql \
             --temporary-connection \
             --authenticator SNOWFLAKE_JWT \
@@ -61,7 +64,7 @@ jobs:
             --schema "$SNOWFLAKE_SCHEMA" \
             -q "USE WAREHOUSE $SNOWFLAKE_WAREHOUSE; USE DATABASE $SNOWFLAKE_DATABASE; USE SCHEMA $SNOWFLAKE_SCHEMA;"
 
-          # 4. Run SQL scripts
+          # 5. Run SQL scripts
           snow sql \
             --temporary-connection \
             --authenticator SNOWFLAKE_JWT \
@@ -122,5 +125,5 @@ jobs:
             --schema "$SNOWFLAKE_SCHEMA" \
             -f snowflake/8_analytics/12_analytics.sql
 
-          # 5. Cleanup key for security
+          # 6. Cleanup key for security
           rm rsa_key.p8
