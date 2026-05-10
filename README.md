@@ -416,7 +416,7 @@ Customer_Analytics_Data_pipeline
 │   └── adf_pipeline_orchestration_diagram.png
 ├── screenshots/
 │   └── (25+ project screenshots)
-├── snowflake_sql/
+├── snowflake/
 │   ├── Query_run/
 │   │   └── Alter_warehouse.sql
 │   ├── 1_setup/
